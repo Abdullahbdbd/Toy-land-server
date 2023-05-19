@@ -27,12 +27,33 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
+
+
+        const serviceCollection = client.db('toyLand').collection('services')
+        
+
+        app.get("/allToys/:text", async(req, res)=>{
+
+
+            if(req.params.text == "science" || req.params.text == "math learning" || req.params.text || "engineering"){
+                const result = await serviceCollection
+                .find({section: req.params.text})
+                .toArray();
+                return res.send(result)
+            }
+            const result = await serviceCollection.find({}).toArray();
+            res.send(result)
+        });
+
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
-        await client.close();
+        // await client.close();
     }
 }
 run().catch(console.dir);
