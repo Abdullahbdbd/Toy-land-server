@@ -30,12 +30,26 @@ async function run() {
 
 
         const serviceCollection = client.db('toyLand').collection('services')
+
+
+        const indexKeys = {toy_name: 1};
+        const indexOptions = {name: "ToyName"};
+
+        const result = await serviceCollection.createIndex(indexKeys, indexOptions);
+
+        app.get("/toySearchByToy/:text", async (req, res)=>{
+            const searchText = req.params.text;
+
+            const result = await serviceCollection.find({
+                $or:[
+                    {toy_name: {$regex: searchText, $options: "i"}}
+                ]
+            }).toArray()
+            res.send(result)
+        })
         
 
-        app.get("/allToys/:text", async(req, res)=>{
-
-
-            if(req.params.text == "science" || req.params.text == "math learning" || req.params.text || "engineering"){
+        app.get("/allToys/:text", async(req, res)=>{ if(req.params.text == "science" || req.params.text == "math learning" || req.params.text || "engineering"){
                 const result = await serviceCollection
                 .find({section: req.params.text})
                 .toArray();
@@ -45,6 +59,12 @@ async function run() {
             res.send(result)
         });
 
+
+        app.get("/allToy", async(req, res)=>{
+            const cursor = serviceCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
 
 
 
