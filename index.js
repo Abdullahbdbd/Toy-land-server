@@ -32,27 +32,28 @@ async function run() {
         const serviceCollection = client.db('toyLand').collection('services')
 
 
-        const indexKeys = {toy_name: 1};
-        const indexOptions = {name: "ToyName"};
+        const indexKeys = { toy_name: 1 };
+        const indexOptions = { name: "ToyName" };
 
         const result = await serviceCollection.createIndex(indexKeys, indexOptions);
 
-        app.get("/toySearchByToy/:text", async (req, res)=>{
+        app.get("/toySearchByToy/:text", async (req, res) => {
             const searchText = req.params.text;
 
             const result = await serviceCollection.find({
-                $or:[
-                    {toy_name: {$regex: searchText, $options: "i"}}
+                $or: [
+                    { toy_name: { $regex: searchText, $options: "i" } }
                 ]
             }).toArray()
             res.send(result)
         })
-        
 
-        app.get("/allToys/:text", async(req, res)=>{ if(req.params.text == "science" || req.params.text == "math learning" || req.params.text || "engineering"){
+
+        app.get("/allToys/:text", async (req, res) => {
+            if (req.params.text == "science" || req.params.text == "math learning" || req.params.text || "engineering") {
                 const result = await serviceCollection
-                .find({section: req.params.text}).limit(4)
-                .toArray();
+                    .find({ section: req.params.text }).limit(4)
+                    .toArray();
                 return res.send(result)
             }
             const result = await serviceCollection.find({}).toArray();
@@ -60,28 +61,41 @@ async function run() {
         });
 
 
-        app.get("/allToy", async(req, res)=>{
+        app.get("/allToy", async (req, res) => {
             const cursor = serviceCollection.find().limit(20);
             const result = await cursor.toArray();
             res.send(result);
         })
 
-        app.get('/allToy/:id', async(req, res)=>{
-            const id= req.params.id
-            
-            const filter = {_id : new ObjectId(id)}
-        
+        app.get('/allToy/:id', async (req, res) => {
+            const id = req.params.id
+
+            const filter = { _id: new ObjectId(id) }
+
             const data = await serviceCollection.findOne(filter)
-        
+
             res.send(data)
-        
+
         })
 
-        app.post('/addToy', async(req, res)=>{
+        app.post('/addToy', async (req, res) => {
             const newToy = req.body;
             console.log(newToy)
             const result = await serviceCollection.insertOne(newToy);
             res.send(result);
+        })
+
+        app.get('/myToys/:email', async (req, res) => {
+            console.log(req.params.email)
+            const result = await serviceCollection.find({ seller_email: req.params.email }).toArray();
+            res.send(result);
+        })
+
+        app.delete('/allToy/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await serviceCollection.deleteOne(query);
+            res.send(result)
         })
 
 
