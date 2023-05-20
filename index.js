@@ -51,7 +51,7 @@ async function run() {
 
         app.get("/allToys/:text", async(req, res)=>{ if(req.params.text == "science" || req.params.text == "math learning" || req.params.text || "engineering"){
                 const result = await serviceCollection
-                .find({section: req.params.text})
+                .find({section: req.params.text}).limit(4)
                 .toArray();
                 return res.send(result)
             }
@@ -61,7 +61,7 @@ async function run() {
 
 
         app.get("/allToy", async(req, res)=>{
-            const cursor = serviceCollection.find();
+            const cursor = serviceCollection.find().limit(20);
             const result = await cursor.toArray();
             res.send(result);
         })
@@ -75,6 +75,13 @@ async function run() {
         
             res.send(data)
         
+        })
+
+        app.post('/addToy', async(req, res)=>{
+            const newToy = req.body;
+            console.log(newToy)
+            const result = await serviceCollection.insertOne(newToy);
+            res.send(result);
         })
 
 
