@@ -78,6 +78,14 @@ async function run() {
 
         })
 
+
+        app.get('/allToy/:id', async(req, res)=>{
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await serviceCollection.findOne(query);
+            res.send(result)
+        })
+
         app.post('/addToy', async (req, res) => {
             const newToy = req.body;
             console.log(newToy)
@@ -98,6 +106,26 @@ async function run() {
             res.send(result)
         })
 
+        app.put('/allToy/:id', async(req, res)=>{
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const options = {upsert: true};
+            const updatedToy = req.body;
+            const toy = {
+                $set:{
+                    seller_name:updatedToy.seller_name,
+                    toy_name:updatedToy.toy_name,
+                    section:updatedToy.section,
+                    price:updatedToy.price,
+                    available_quantity:updatedToy.available_quantity,
+                    detail_description :updatedToy.detail_description,
+                    img_url:updatedToy.img_url,
+                    rating:updatedToy.rating
+                }
+            }
+            const result = await serviceCollection.updateOne(filter, toy, options);
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection
