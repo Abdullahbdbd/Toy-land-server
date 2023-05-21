@@ -52,7 +52,7 @@ async function run() {
         app.get("/allToys/:text", async (req, res) => {
             if (req.params.text == "science" || req.params.text == "math learning" || req.params.text || "engineering") {
                 const result = await serviceCollection
-                    .find({ section: req.params.text }).limit(4)
+                    .find({ section: req.params.text }).limit(2)
                     .toArray();
                 return res.send(result)
             }
